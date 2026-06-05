@@ -1,0 +1,20 @@
+= acdx
+
+_Brief description of the project_
+
+image:https://github.com/TODO/acdx/actions/workflows/CI.yml/badge.svg[CI,link=https://github.com/TODO/acdx/actions/workflows/CI.yml]
+image:https://github.com/TODO/acdx/actions/workflows/CD.yml/badge.svg[CD,link=https://github.com/TODO/acdx/actions/workflows/CD.yml]
+
+== About
+
+Project description here
+
+== Crates
+
+[cols="1,1"]
+|===
+| Crate | Description
+
+| link:crates/acdx/[`acdx`]
+| Main library crate.
+|===
