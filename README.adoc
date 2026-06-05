@@ -1,13 +1,22 @@
-= acdx
+= ⚡️ `acdx`
 
-_Brief description of the project_
+_A command runner built in `acdc` and AsciiDoc._
 
 image:https://github.com/TODO/acdx/actions/workflows/CI.yml/badge.svg[CI,link=https://github.com/TODO/acdx/actions/workflows/CI.yml]
 image:https://github.com/TODO/acdx/actions/workflows/CD.yml/badge.svg[CD,link=https://github.com/TODO/acdx/actions/workflows/CD.yml]
 
-== About
+== Vision
 
-Project description here
+Files next to source code, e.g. README files, are commonly used to document shell commands that are relevant to contributors and users.
+More often than not, these files quickly become out of date.
+Command runners, e.g. link:https://github.com/casey/just[`just`], help to solve this problem by providing indirection.
+No matter how the `build` command in your `justfile` changes, the documented `just build` command in your project's README will always work.
+This project takes an alternative approach: literate programming.
+
+Rather than providing indirection, `acdx` provides a way to run blocks of shell code that are defined in AsciiDoc files.
+Your rendered documentation file can look like it would without any external command running.
+In plain text, AsciiDoc annotations (roles) can be used to specify metadata that's relevant to command runners: the command's name, any dependencies it has, whether it accepts commandline arguments, etc.
+Your documentation will never be out of date because your documentation is now _executable_.
 
 == Crates
 
