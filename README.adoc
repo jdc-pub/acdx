@@ -2,8 +2,8 @@
 
 _A command runner built in `acdc` and AsciiDoc._
 
-image:https://github.com/TODO/acdx/actions/workflows/CI.yml/badge.svg[CI,link=https://github.com/TODO/acdx/actions/workflows/CI.yml]
-image:https://github.com/TODO/acdx/actions/workflows/CD.yml/badge.svg[CD,link=https://github.com/TODO/acdx/actions/workflows/CD.yml]
+image:https://github.com/jdc-pub/acdx/actions/workflows/CI.yml/badge.svg[CI,link=https://github.com/jdc-pub/acdx/actions/workflows/CI.yml]
+image:https://github.com/jdc-pub/acdx/actions/workflows/CD.yml/badge.svg[CD,link=https://github.com/jdc-pub/acdx/actions/workflows/CD.yml]
 
 == Vision
 
@@ -17,6 +17,36 @@ Rather than providing indirection, `acdx` provides a way to run blocks of shell 
 Your rendered documentation file can look like it would without any external command running.
 In plain text, AsciiDoc annotations (roles) can be used to specify metadata that's relevant to command runners: the command's name, any dependencies it has, whether it accepts commandline arguments, etc.
 Your documentation will never be out of date because your documentation is now _executable_.
+
+== Example
+
+See the following example `README.adoc` content!
+[source, adoc]
+------
+= My Project
+
+TIP: Use the `acdx` CLI to run the build and test instructions below!
+
+== Build
+
+We use the `cargo xtask` convention.
+
+[.command, id=build]
+[source, bash]
+----
+cargo xtask build
+----
+
+== Tests
+
+All tests can be run using `cargo-nextest`.
+
+[.command, id=test, deps="build"]
+[source, bash]
+----
+cargo nextest run
+----
+------
 
 == Crates
 
