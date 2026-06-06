@@ -3,6 +3,8 @@
 use std::borrow::Borrow;
 use std::fmt;
 
+const DEFAULT_SHELL: &str = "sh";
+
 /// A unique identifier for a command.
 ///
 /// Ids are restricted to ASCII alphanumerics, `-`, and `_`, so they are safe to use unquoted on
@@ -94,6 +96,43 @@ pub struct CommandMetadata {
     /// This value is what might appear *last* in the *shebang* of a script, e.g. `python3` for
     /// `#!/usr/bin/env python3`, or `bash` for `#!/usr/bin/env bash`.
     pub shell: String,
+}
+
+/// A single command with its metadata.
+#[derive(Clone, Debug)]
+pub struct CommandBlock {
+    /// The metadata associated with this command block.
+    pub metadata: CommandMetadata,
+    /// The script body.
+    pub script: String,
+}
+
+impl CommandBlock {
+    /// Construct a [`CommandBlock`], defaulting `shell` to `"sh"` when absent.
+    #[must_use]
+    pub fn new(id: CommandId, script: String, shell: Option<String>) -> Self {
+        let mut script = script;
+        if !script.ends_with('\n') {
+            script.push('\n');
+        }
+        Self {
+            metadata: CommandMetadata {
+                id,
+                shell: shell.unwrap_or_else(|| DEFAULT_SHELL.to_string()),
+            },
+            script,
+        }
+    }
+
+    /// Execute the script.
+    ///
+    /// # Errors
+    ///
+    /// TODO!
+    #[allow(clippy::result_unit_err)]
+    pub fn execute(self) -> Result<(), ()> {
+        todo!()
+    }
 }
 
 #[cfg(test)]
