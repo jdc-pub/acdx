@@ -1,1 +1,3 @@
-//! Unit tests for `cmds.rs`.
+//! Unit tests for `command.rs`.
+
+mod command_id;
