@@ -2,6 +2,7 @@
 
 use super::*;
 mod command_block;
+mod command_graph;
 mod command_id;
 
 // --------------------------------------------------------------------------
