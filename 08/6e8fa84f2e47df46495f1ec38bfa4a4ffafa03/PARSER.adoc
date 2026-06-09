@@ -1,0 +1,73 @@
+= Known `acdc-parser` Bugs
+Joey Carpinelli <joseph.carpinelli@icloud.com>
+
+Upstream: https://github.com/nlopes/acdc[nlopes/acdc] (`acdc-parser` crate)
+
+== BUG-1: Block attributes ignored inside open blocks
+
+=== Symptom
+
+A block attribute line (`[.command, id=x]`) placed before a listing block inside an open
+block (`--` / `--`) is treated as literal paragraph text rather than being applied to the
+following block.
+
+[source, adoc]
+----
+--
+[.command, id=build]  <1>
+----
+echo hi
+----
+--
+----
+<1> Parsed as a `Paragraph` whose content is the string `"[.command, id=build]"`, not as
+block metadata for the listing block that follows.
+
+=== Root cause (suspected)
+
+The open-block delimiter (`--`) is a two-character prefix of the listing-block delimiter
+(`----`).  The grammar appears to consume the listing delimiters as pairs of open-block
+delimiters, breaking the context needed to parse block attributes.
+
+=== Impact
+
+`nested_blocks` recurses into `DelimitedOpen` blocks, but because block attributes are
+silently dropped inside them, no command block can ever be discovered via that path.  The
+branch is currently dead code.
+
+=== Workaround
+
+None within standard AsciiDoc.  Commands must be placed at the top level, inside a
+section, or inside a sidebar (`+****+`), example (`====`), or quote (`____`) block.
+
+---
+
+== BUG-2: Empty listing block parsed as `ThematicBreak`
+
+=== Symptom
+
+An empty listing block (nothing between the opening and closing `----` delimiters) is not
+parsed as a `DelimitedListing` with zero inlines.  Instead, `----\n----` is parsed as a
+`ThematicBreak` followed by stray content.
+
+[source, adoc]
+----
+[.command, id=build]
+----
+----
+----
+
+=== Root cause (suspected)
+
+The grammar does not distinguish an empty listing block from the horizontal-rule shorthand
+(`----` on a line by itself) when no content appears between the delimiters.
+
+=== Impact
+
+An empty script body (`----\n----`) cannot be round-tripped through the parser; the
+command block is not discovered and no error is raised.
+
+=== Workaround
+
+A listing block with only whitespace (`----\n \n----`) parses correctly as a
+`DelimitedListing` with zero inlines.
