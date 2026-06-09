@@ -3,4 +3,3 @@
 pub mod adoc;
 pub mod cli;
 pub mod command;
-pub mod exe;
