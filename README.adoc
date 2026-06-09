@@ -20,33 +20,27 @@ Your documentation will never be out of date because your documentation is now _
 
 == Example
 
-See the following example `README.adoc` content!
-[source, adoc]
-------
-= My Project
-
 TIP: Use the `acdx` CLI to run the build and test instructions below!
 
-== Build
+=== Build
 
-We use the `cargo xtask` convention.
+We use the `cargo` CLI.
 
 [.command, id=build]
 [source, bash]
 ----
-cargo xtask build
+cargo build
 ----
 
-== Tests
+=== Tests
 
 All tests can be run using `cargo-nextest`.
 
-[.command, id=test, deps="build"]
+[.command, id=test]
 [source, bash]
 ----
 cargo nextest run
 ----
-------
 
 == Crates
 

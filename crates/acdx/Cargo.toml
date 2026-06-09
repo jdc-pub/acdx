@@ -10,6 +10,8 @@ workspace = true
 
 [dependencies]
 acdc-parser = "0.9.0"
+clap = { version = "4.6.1", features = ["derive"] }
+owo-colors = "4.3.0"
 petgraph = "0.8.3"
 tempfile = "3"
 thiserror = "2"
