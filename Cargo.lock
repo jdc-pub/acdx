@@ -30,6 +30,7 @@ dependencies = [
  "petgraph",
  "proptest",
  "rstest",
+ "tempfile",
  "thiserror",
 ]
 

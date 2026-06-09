@@ -3,6 +3,7 @@
 use std::borrow::Borrow;
 use std::collections::{HashMap, HashSet};
 use std::fmt;
+use std::io::Write as _;
 
 use petgraph::acyclic::{Acyclic, AcyclicEdgeError};
 use petgraph::data::Build;
@@ -131,13 +132,61 @@ impl CommandBlock {
 
     /// Execute the script.
     ///
+    /// The script is written to a freshly created temporary file with owner-only permissions, and
+    /// the configured interpreter is invoked with that file as its argument. We invoke the
+    /// interpreter explicitly rather than relying on a shebang and the OS loader: shebangs are
+    /// honored only on Unix and require the executable bit, and therefore would ignore [`CommandMetadata::shell`].
+    /// Explicit invocation is portable across platforms and interpreters.
+    ///
+    /// The temporary file is deleted once the child exits. That is the earliest point at which
+    /// deletion is safe: there is no portable signal for "the interpreter has finished reading the
+    /// file," and on Windows a file held open by another process cannot be unlinked.
+    ///
     /// # Errors
     ///
-    /// TODO!
-    #[allow(clippy::result_unit_err)]
-    pub fn execute(self) -> Result<(), ()> {
-        todo!()
+    /// Returns [`ExecError::TempFile`] if the temporary file cannot be created or written,
+    /// [`ExecError::Spawn`] if the interpreter cannot be spawned, or [`ExecError::Failed`] if the
+    /// process exits with a non-zero status.
+    pub fn execute(self) -> Result<(), ExecError> {
+        use std::process::Command;
+
+        let mut tmp = tempfile::NamedTempFile::new().map_err(ExecError::TempFile)?;
+        tmp.write_all(self.script.as_bytes())
+            .map_err(ExecError::TempFile)?;
+        tmp.flush().map_err(ExecError::TempFile)?;
+
+        // TODO check if this is what `just` does
+        let status = Command::new(&self.metadata.shell)
+            .arg(tmp.path())
+            .status()
+            .map_err(ExecError::Spawn)?;
+
+        // The `tmp` handle is dropped here, deleting the file, now that the child has exited.
+        // We explicitly `drop` the handle because dropping it before the function finishes
+        // *feels* safer. Despite this, the `drop` is almost certainly unnecessary. Once that's
+        // confirmed, it should be removed.
+        drop(tmp);
+
+        if status.success() {
+            Ok(())
+        } else {
+            Err(ExecError::Failed(status))
+        }
     }
+}
+
+/// Error returned when a [`CommandBlock`] fails to execute.
+#[derive(Debug, thiserror::Error)]
+pub enum ExecError {
+    /// The temporary script file could not be created or written.
+    #[error("could not write temporary script file")]
+    TempFile(#[source] std::io::Error),
+    /// The interpreter could not be spawned.
+    #[error("could not spawn interpreter")]
+    Spawn(#[source] std::io::Error),
+    /// The interpreter ran but exited with a non-zero status.
+    #[error("script exited with {0}")]
+    Failed(std::process::ExitStatus),
 }
 
 /// Error returned when building a [`CommandGraph`] from a [`CommandGraphBuilder`] fails.
