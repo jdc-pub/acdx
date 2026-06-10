@@ -5,6 +5,16 @@ _A command runner built in `acdc` and AsciiDoc._
 image:https://github.com/jdc-pub/acdx/actions/workflows/CI.yml/badge.svg[CI,link=https://github.com/jdc-pub/acdx/actions/workflows/CI.yml]
 image:https://github.com/jdc-pub/acdx/actions/workflows/CD.yml/badge.svg[CD,link=https://github.com/jdc-pub/acdx/actions/workflows/CD.yml]
 
+== Installation
+
+You can install `acdx` using `cargo`.
+
+[.command, id=install]
+[source, bash]
+----
+cargo install --git https://github.com/jdc-pub/acdx
+----
+
 == Vision
 
 Files next to source code, e.g. README files, are commonly used to document shell commands that are relevant to contributors and users.
