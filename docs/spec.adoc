@@ -1,0 +1,20 @@
+= Specification for ACDX Command Runner
+
+:author: Joey Carpinelli
+:email: joseph.carpinelli@icloud.com
+
+[abstract]
+A new tool --- `acdx` --- allows software project maintainers to define development commands using a literate programming approach.
+The tool uses metadata values, e.g. the `.command` role, to encode structure in plain-text documentation files written with AsciiDoc.
+The link::https://github.com/nlopes/acdc[`acdc`] project is used as the definitive document parser.
+
+= Motivation
+
+Developers use command runners to make specific recipes --- commonly building, linting, and testing --- simpler to invoke by end users.
+The `make` build tool invented 50 years ago is often used as a command runner in software projects today.
+The more recently developed `just` CLI modernizes the command runner workflow, with helpful features such as link:https://just.systems/man/en/parallelism.html[parallel execution] and a link:https://just.systems/man/en/language-server-protocol.html[Language Server Protocol] implementation.
+The link:https://github.com/jacobdeichert/mask[`mask`] CLI sacrifices features in favor of a literate programming approach to command definitions: all commands are written as Markdown blocks.
+
+Literate programming is particularly relevant for command runners.
+In modern software projects, developer command definitions are usually documented in README or similar documentation files alongside source code.
+In many cases, at least one command's associated documentation is out-of-date.
