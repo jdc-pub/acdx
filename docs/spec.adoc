@@ -3,18 +3,33 @@
 :author: Joey Carpinelli
 :email: joseph.carpinelli@icloud.com
 
+:acdc: https://github.com/nlopes/acdc
+:acdc-parser: https://crates.io/crates/acdc-parser
+:adoc: https://asciidoc.org
+:clap: https://crates.io/crates/clap
+:petgraph: https://crates.io/crates/petgraph
+
 [abstract]
 A new tool --- `acdx` --- allows software project maintainers to define development commands using a literate programming approach.
 The tool uses metadata values, e.g. the `.command` role, to encode structure in plain-text documentation files written with AsciiDoc.
-The link::https://github.com/nlopes/acdc[`acdc`] project is used as the definitive document parser.
+The {acdc}[`acdc`] CLI inspires the `acdx` name, and the accompanying {acdc-parser}[`acdc-parser`] library is used as the definitive document parser.
 
-= Motivation
+== Motivation
 
 Developers use command runners to make specific recipes --- commonly building, linting, and testing --- simpler to invoke by end users.
 The `make` build tool invented 50 years ago is often used as a command runner in software projects today.
-The more recently developed `just` CLI modernizes the command runner workflow, with helpful features such as link:https://just.systems/man/en/parallelism.html[parallel execution] and a link:https://just.systems/man/en/language-server-protocol.html[Language Server Protocol] implementation.
-The link:https://github.com/jacobdeichert/mask[`mask`] CLI sacrifices features in favor of a literate programming approach to command definitions: all commands are written as Markdown blocks.
+The more recently developed `just` CLI modernizes the command runner workflow, with helpful features such as https://just.systems/man/en/parallelism.html[parallel execution] and a https://just.systems/man/en/language-server-protocol.html[Language Server Protocol] implementation.
+The https://github.com/jacobdeichert/mask[`mask`] CLI sacrifices features in favor of a literate programming approach to command definitions: all commands are written as Markdown blocks.
 
 Literate programming is particularly relevant for command runners.
 In modern software projects, developer command definitions are usually documented in README or similar documentation files alongside source code.
-In many cases, at least one command's associated documentation is out-of-date.
+It's far easier to keep the command documentation up to date when the the same markup is used to specify documentation and definitions.
+The https://github.com/jacobdeichert/mask[`mask`] command runner allows document writers to encode commands in markup, but the markup (Markdown) is limited in structure.
+Markdown doesn't have enough degrees of freedom in its syntax to provide rich metadata while preserving readability post-rendering.
+
+{adoc}[AsciiDoc] is a markup language that is similar in concept to Markdown, but far more expressive.
+This expressiveness allows document writers to encode metadata that is unoptrusive to readers of the plain-text markup and of the rendered output.
+The {acdc}[`acdc`] project provides AsciiDoc parsers via CLI applications and Rust libraries.
+Other Rust libraries, e.g. {clap}[`clap`] and {petgraph}[`petgraph`], make building a simple workflow engine easy.
+
+== Specification
