@@ -302,12 +302,14 @@ impl CommandGraph {
                         .shell
                         .if_supports_color(Stdout, |t| t.dimmed().to_string()),
                 );
+                let bar = "│"
+                    .if_supports_color(Stdout, |t| t.dimmed().to_string())
+                    .to_string();
+                println!("  {bar}");
                 for line in block.script.lines() {
-                    println!(
-                        "  {} {line}",
-                        "│".if_supports_color(Stdout, |t| t.dimmed().to_string()),
-                    );
+                    println!("  {bar} {line}");
                 }
+                println!("  {bar}");
                 println!();
             }
             return;
