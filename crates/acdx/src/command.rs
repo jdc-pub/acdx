@@ -280,7 +280,7 @@ impl CommandGraph {
             for line in block.script.lines() {
                 println!(
                     "  {} {line}",
-                    "❯".if_supports_color(Stdout, |t| t.dimmed().to_string()),
+                    "│".if_supports_color(Stdout, |t| t.cyan().bold().to_string()),
                 );
             }
             println!();
