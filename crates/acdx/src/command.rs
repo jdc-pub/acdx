@@ -264,23 +264,21 @@ impl CommandGraph {
                     .id
                     .if_supports_color(Stdout, |t| t.cyan().bold().to_string()),
                 "·".if_supports_color(Stdout, |t| t.dimmed().to_string()),
-                block
-                    .metadata
-                    .shell
-                    .if_supports_color(Stdout, |t| t.dimmed().to_string()),
+                &block.metadata.shell,
             );
             if let Some(desc) = &block.metadata.description {
                 print!(
                     " {} {}",
                     "—".if_supports_color(Stdout, |t| t.dimmed().to_string()),
-                    desc.if_supports_color(Stdout, |t| t.dimmed().italic().to_string()),
+                    desc.if_supports_color(Stdout, |t| t.italic().to_string()),
                 );
             }
             println!();
             for line in block.script.lines() {
                 println!(
-                    "  {} {line}",
-                    "│".if_supports_color(Stdout, |t| t.cyan().bold().to_string()),
+                    "  {} {}",
+                    "│".if_supports_color(Stdout, |t| t.bold().to_string()),
+                    line.if_supports_color(Stdout, |t| t.dimmed().to_string()),
                 );
             }
             println!();
@@ -315,9 +313,9 @@ impl CommandGraph {
             "acdx".if_supports_color(Stdout, |t| t.bold().to_string()),
             "·".if_supports_color(Stdout, |t| t.dimmed().to_string()),
             blocks.len(),
-            plural.if_supports_color(Stdout, |t| t.dimmed().to_string()),
+            plural,
             "·".if_supports_color(Stdout, |t| t.dimmed().to_string()),
-            source.if_supports_color(Stdout, |t| t.dimmed().underline().to_string()),
+            source.if_supports_color(Stdout, |t| t.underline().to_string()),
         );
         println!();
 
