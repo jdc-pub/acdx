@@ -4,6 +4,10 @@ use std::borrow::Borrow;
 use std::collections::{HashMap, HashSet};
 use std::fmt;
 use std::io::Write as _;
+use std::path::Path;
+
+use facet::Facet;
+use owo_colors::{OwoColorize as _, Stream::Stdout};
 
 use petgraph::acyclic::{Acyclic, AcyclicEdgeError};
 use petgraph::data::Build;
@@ -17,7 +21,7 @@ const DEFAULT_SHELL: &str = "sh";
 /// Ids are restricted to ASCII alphanumerics, `-`, and `_`, so they are safe to use unquoted on
 /// the command line and as `AsciiDoc` element ids. Construct via [`CommandId::new`] or
 /// [`str::parse`]; the inner string is validated on construction and never exposed for mutation.
-#[derive(Clone, Debug, Hash, Eq, PartialEq)]
+#[derive(Clone, Debug, Facet, Hash, Eq, PartialEq)]
 pub struct CommandId(String);
 
 impl CommandId {
@@ -94,7 +98,7 @@ pub enum InvalidCommandId {
 }
 
 /// Metadata for a command block.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Facet)]
 pub struct CommandMetadata {
     /// The identifier for the command, e.g. `build` or `test`.
     pub id: CommandId,
@@ -106,7 +110,7 @@ pub struct CommandMetadata {
 }
 
 /// A single command with its metadata.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Facet)]
 pub struct CommandBlock {
     /// The metadata associated with this command block.
     pub metadata: CommandMetadata,
@@ -237,6 +241,104 @@ impl CommandGraph {
             .map(|idx| graph[idx].clone())
             .collect();
         CommandQueue(queue.into_iter())
+    }
+
+    /// Render the available commands to stdout. The compact view aligns each command beside a
+    /// one-line preview of its script; `verbose` expands every script in full beneath its command.
+    /// Color is emitted only when stdout is a terminal that supports it.
+    pub fn list(self, file: &Path, verbose: bool) {
+        let blocks: Vec<CommandBlock> = self.into_iter().collect();
+        let source = file.file_name().and_then(|n| n.to_str()).unwrap_or("?");
+
+        println!();
+        if blocks.is_empty() {
+            println!(
+                "  {}  no commands in {}\n",
+                "⚡".if_supports_color(Stdout, |t| t.yellow().to_string()),
+                source.if_supports_color(Stdout, |t| t.underline().to_string()),
+            );
+            return;
+        }
+
+        let plural = if blocks.len() == 1 {
+            "command"
+        } else {
+            "commands"
+        };
+        println!(
+            "  {} {} {} {} {} {} {}",
+            "⚡".if_supports_color(Stdout, |t| t.yellow().to_string()),
+            "acdx".if_supports_color(Stdout, |t| t.bold().to_string()),
+            "·".if_supports_color(Stdout, |t| t.dimmed().to_string()),
+            blocks
+                .len()
+                .if_supports_color(Stdout, |t| t.bold().to_string()),
+            plural.if_supports_color(Stdout, |t| t.dimmed().to_string()),
+            "·".if_supports_color(Stdout, |t| t.dimmed().to_string()),
+            source.if_supports_color(Stdout, |t| t.dimmed().underline().to_string()),
+        );
+        println!();
+
+        if verbose {
+            for block in &blocks {
+                println!(
+                    "  {}  {}",
+                    block
+                        .metadata
+                        .id
+                        .if_supports_color(Stdout, |t| t.cyan().bold().to_string()),
+                    block
+                        .metadata
+                        .shell
+                        .if_supports_color(Stdout, |t| t.dimmed().to_string()),
+                );
+                for line in block.script.lines() {
+                    println!(
+                        "    {} {line}",
+                        "│".if_supports_color(Stdout, |t| t.dimmed().to_string()),
+                    );
+                }
+                println!();
+            }
+            return;
+        }
+
+        let width = blocks
+            .iter()
+            .map(|b| b.metadata.id.as_str().len())
+            .max()
+            .unwrap_or(0);
+        for block in &blocks {
+            let id = block.metadata.id.as_str();
+            let pad = " ".repeat(width - id.len());
+            let mut lines = block.script.lines();
+            let preview = lines.next().unwrap_or("");
+            let extra = lines.count();
+            print!(
+                "  {}{pad}   {}",
+                id.if_supports_color(Stdout, |t| t.cyan().bold().to_string()),
+                preview.if_supports_color(Stdout, |t| t.dimmed().to_string()),
+            );
+            if extra > 0 {
+                print!(
+                    " {}",
+                    format!("+{extra}").if_supports_color(Stdout, |t| t.dimmed().to_string()),
+                );
+            }
+            println!();
+        }
+
+        println!();
+        println!(
+            "  {} {}{}   {} {}{}",
+            "acdx".if_supports_color(Stdout, |t| t.bold().to_string()),
+            "<command>".if_supports_color(Stdout, |t| t.cyan().to_string()),
+            "  run".if_supports_color(Stdout, |t| t.dimmed().to_string()),
+            "acdx".if_supports_color(Stdout, |t| t.bold().to_string()),
+            "-v".if_supports_color(Stdout, |t| t.cyan().to_string()),
+            "  show scripts".if_supports_color(Stdout, |t| t.dimmed().to_string()),
+        );
+        println!();
     }
 
     /// Build a [`CommandQueue`] for the given commands and all of their transitive dependencies,

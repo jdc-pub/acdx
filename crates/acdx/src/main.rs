@@ -7,7 +7,6 @@ use acdc_parser as acdc;
 use acdx::adoc;
 use acdx::cli::Args;
 use acdx::command::{CommandGraph, CommandId, UnknownCommand};
-use owo_colors::OwoColorize as _;
 
 /// Basenames searched, in precedence order, when no file is given.
 const CANDIDATES: [&str; 6] = [
@@ -67,17 +66,7 @@ fn main() {
         });
 
     if args.commands.is_empty() {
-        println!("ACDX Command Runner\n");
-        for block in graph {
-            println!("{}", block.metadata.id.bold().cyan());
-            if args.verbose {
-                println!();
-                for line in block.script.lines() {
-                    println!("  {}", line.yellow());
-                }
-            }
-            println!();
-        }
+        graph.list(&file, args.verbose);
         return;
     }
 

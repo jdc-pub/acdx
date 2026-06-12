@@ -2,34 +2,39 @@
 
 use std::path::PathBuf;
 
-use clap::Parser;
+use facet::Facet;
+use figue as args;
+use figue::FigueBuiltins;
 
 /// Run commands defined in an `AsciiDoc` file.
-#[derive(Debug, Parser)]
-#[command(version, about)]
+#[derive(Debug, Facet)]
 pub struct Args {
     /// Path to the `AsciiDoc` file. When omitted, the working directory and its ancestors are
     /// searched for `COMMANDS`, `DEVELOP`, or `README` (`.adoc`/`.asciidoc`), stopping at the
     /// repository root.
-    #[arg(short, long)]
+    #[facet(args::named, args::short = 'f')]
     pub file: Option<PathBuf>,
 
     /// Print each command's script instead of executing it.
-    #[arg(short = 'n', long)]
+    #[facet(args::named, args::short = 'n', default)]
     pub dry_run: bool,
 
     /// When listing commands, also print each command's script.
-    #[arg(short, long)]
+    #[facet(args::named, args::short = 'v')]
     pub verbose: bool,
 
     /// Commands to run. When empty, the available commands are listed instead of run.
+    #[facet(args::positional, default)]
     pub commands: Vec<String>,
+
+    #[facet(flatten)]
+    builtins: FigueBuiltins,
 }
 
 impl Args {
     /// Parse [`std::env::args`], exiting with a usage message on failure.
     #[must_use]
     pub fn parse() -> Self {
-        <Self as Parser>::parse()
+        args::from_std_args().unwrap()
     }
 }
