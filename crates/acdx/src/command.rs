@@ -253,6 +253,40 @@ impl CommandGraph {
         CommandQueue(queue.into_iter())
     }
 
+    /// Expanded view for [`Self::list`]: each command's full script beneath a header line, every
+    /// script line behind a prompt glyph.
+    fn list_verbose(blocks: &[CommandBlock]) {
+        for block in blocks {
+            print!(
+                "  {} {} {}",
+                block
+                    .metadata
+                    .id
+                    .if_supports_color(Stdout, |t| t.cyan().bold().to_string()),
+                "·".if_supports_color(Stdout, |t| t.dimmed().to_string()),
+                block
+                    .metadata
+                    .shell
+                    .if_supports_color(Stdout, |t| t.dimmed().to_string()),
+            );
+            if let Some(desc) = &block.metadata.description {
+                print!(
+                    " {} {}",
+                    "—".if_supports_color(Stdout, |t| t.dimmed().to_string()),
+                    desc.if_supports_color(Stdout, |t| t.dimmed().italic().to_string()),
+                );
+            }
+            println!();
+            for line in block.script.lines() {
+                println!(
+                    "  {} {line}",
+                    "❯".if_supports_color(Stdout, |t| t.dimmed().to_string()),
+                );
+            }
+            println!();
+        }
+    }
+
     /// Render the available commands to stdout. The compact view aligns each command beside a
     /// one-line preview of its script; `verbose` expands every script in full beneath its command.
     /// Color is emitted only when stdout is a terminal that supports it.
@@ -280,9 +314,7 @@ impl CommandGraph {
             "⚡".if_supports_color(Stdout, |t| t.yellow().to_string()),
             "acdx".if_supports_color(Stdout, |t| t.bold().to_string()),
             "·".if_supports_color(Stdout, |t| t.dimmed().to_string()),
-            blocks
-                .len()
-                .if_supports_color(Stdout, |t| t.bold().to_string()),
+            blocks.len(),
             plural.if_supports_color(Stdout, |t| t.dimmed().to_string()),
             "·".if_supports_color(Stdout, |t| t.dimmed().to_string()),
             source.if_supports_color(Stdout, |t| t.dimmed().underline().to_string()),
@@ -290,28 +322,7 @@ impl CommandGraph {
         println!();
 
         if verbose {
-            for block in &blocks {
-                println!(
-                    "  {}  {}",
-                    block
-                        .metadata
-                        .id
-                        .if_supports_color(Stdout, |t| t.cyan().bold().to_string()),
-                    block
-                        .metadata
-                        .shell
-                        .if_supports_color(Stdout, |t| t.dimmed().to_string()),
-                );
-                let bar = "│"
-                    .if_supports_color(Stdout, |t| t.dimmed().to_string())
-                    .to_string();
-                println!("  {bar}");
-                for line in block.script.lines() {
-                    println!("  {bar} {line}");
-                }
-                println!("  {bar}");
-                println!();
-            }
+            Self::list_verbose(&blocks);
             return;
         }
 
@@ -354,13 +365,12 @@ impl CommandGraph {
 
         println!();
         println!(
-            "  {} {}{}   {} {}{}",
+            "  {} {}   {} {}  {}",
             "acdx".if_supports_color(Stdout, |t| t.bold().to_string()),
             "<command>".if_supports_color(Stdout, |t| t.cyan().to_string()),
-            "  run".if_supports_color(Stdout, |t| t.dimmed().to_string()),
             "acdx".if_supports_color(Stdout, |t| t.bold().to_string()),
             "-v".if_supports_color(Stdout, |t| t.cyan().to_string()),
-            "  show scripts".if_supports_color(Stdout, |t| t.dimmed().to_string()),
+            "show scripts".if_supports_color(Stdout, |t| t.dimmed().to_string()),
         );
         println!();
     }
