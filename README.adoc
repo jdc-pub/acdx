@@ -9,7 +9,7 @@ image:https://github.com/jdc-pub/acdx/actions/workflows/CD.yml/badge.svg[CD,link
 
 You can install `acdx` using `cargo`.
 
-[.command, id=install]
+[.command, id=install, description="Install the acdx CLI from source"]
 [source, bash]
 ----
 cargo install --git https://github.com/jdc-pub/acdx
@@ -36,7 +36,7 @@ TIP: Use the `acdx` CLI to run the build and test instructions below!
 
 We use the `cargo` CLI.
 
-[.command, id=build]
+[.command, id=build, description="Compile the workspace"]
 [source, bash]
 ----
 cargo build
@@ -46,7 +46,7 @@ cargo build
 
 All tests can be run using `cargo-nextest`.
 
-[.command, id=test]
+[.command, id=test, description="Run the test suite with nextest"]
 [source, bash]
 ----
 cargo nextest run

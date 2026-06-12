@@ -107,6 +107,8 @@ pub struct CommandMetadata {
     /// This value is what might appear *last* in the *shebang* of a script, e.g. `python3` for
     /// `#!/usr/bin/env python3`, or `bash` for `#!/usr/bin/env bash`.
     pub shell: String,
+    /// A short, human-readable summary of what the command does, shown when listing commands.
+    pub description: Option<String>,
 }
 
 /// A single command with its metadata.
@@ -129,9 +131,17 @@ impl CommandBlock {
             metadata: CommandMetadata {
                 id,
                 shell: shell.unwrap_or_else(|| DEFAULT_SHELL.to_string()),
+                description: None,
             },
             script,
         }
+    }
+
+    /// Attach a description, returning the updated block.
+    #[must_use]
+    pub fn with_description(mut self, description: Option<String>) -> Self {
+        self.metadata.description = description;
+        self
     }
 
     /// Execute the script.
@@ -311,19 +321,31 @@ impl CommandGraph {
         for block in &blocks {
             let id = block.metadata.id.as_str();
             let pad = " ".repeat(width - id.len());
-            let mut lines = block.script.lines();
-            let preview = lines.next().unwrap_or("");
-            let extra = lines.count();
             print!(
-                "  {}{pad}   {}",
+                "  {}{pad}   ",
                 id.if_supports_color(Stdout, |t| t.cyan().bold().to_string()),
-                preview.if_supports_color(Stdout, |t| t.dimmed().to_string()),
             );
-            if extra > 0 {
+            // Prefer the command's description; fall back to a preview of the first script line,
+            // flagging any further lines so the listing stays honest about hidden content.
+            if let Some(desc) = &block.metadata.description {
                 print!(
-                    " {}",
-                    format!("+{extra}").if_supports_color(Stdout, |t| t.dimmed().to_string()),
+                    "{}",
+                    desc.if_supports_color(Stdout, |t| t.dimmed().to_string())
                 );
+            } else {
+                let mut lines = block.script.lines();
+                let preview = lines.next().unwrap_or("");
+                let extra = lines.count();
+                print!(
+                    "{}",
+                    preview.if_supports_color(Stdout, |t| t.dimmed().to_string()),
+                );
+                if extra > 0 {
+                    print!(
+                        " {}",
+                        format!("+{extra}").if_supports_color(Stdout, |t| t.dimmed().to_string()),
+                    );
+                }
             }
             println!();
         }

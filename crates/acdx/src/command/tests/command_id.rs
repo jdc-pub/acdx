@@ -13,6 +13,7 @@ fn command_metadata_holds_id_and_shell() {
     let meta = CommandMetadata {
         id: CommandId::new("build").unwrap(),
         shell: "bash".to_string(),
+        description: None,
     };
     assert_eq!(meta.id.as_str(), "build");
     assert_eq!(meta.shell, "bash");

@@ -135,9 +135,16 @@ fn parse_command_block(
         .transpose()?
         .unwrap_or_default();
     let shell = source_language(meta);
+    let description = meta
+        .attributes
+        .get_string("description")
+        .map(std::borrow::Cow::into_owned);
     let script = acdc::inlines_to_string(inlines);
 
-    Ok((CommandBlock::new(id, script, shell), deps))
+    Ok((
+        CommandBlock::new(id, script, shell).with_description(description),
+        deps,
+    ))
 }
 
 /// The source language of a `[source,<lang>]` block, e.g. `bash` for `[source, bash]`.
