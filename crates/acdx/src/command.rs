@@ -304,7 +304,7 @@ impl CommandGraph {
                 );
                 for line in block.script.lines() {
                     println!(
-                        "    {} {line}",
+                        "  {} {line}",
                         "│".if_supports_color(Stdout, |t| t.dimmed().to_string()),
                     );
                 }
